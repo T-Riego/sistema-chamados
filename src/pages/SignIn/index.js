@@ -1,22 +1,22 @@
-import { useContext, useState } from 'react';
-import './signin.css';
+import { useContext, useState } from 'react'
+import './signin.css'
 
-import { Link } from 'react-router-dom';
-import logo from '../../assets/logogpt2.png';
-import { AuthContext } from '../../contexts/auth'; //importando o contexts
+import { Link } from 'react-router-dom'
+import logo from '../../assets/logogpt2.png'
+import { AuthContext } from '../../contexts/auth'
 
 
 export default function SignIn(){
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const { signIn } = useContext(AuthContext) // criando a função de login, passando o useContext
+  const { signIn, loadingAuth } = useContext(AuthContext)
 
-  function handleSignIn(e){ //metodo de login
+  async function handleSignIn(e){
     e.preventDefault();
 
     if(email !== '' && password !== ''){
-      signIn(email, password);
+      await signIn(email, password);
     }
 
   }
@@ -45,7 +45,9 @@ export default function SignIn(){
             onChange={ (e) => setPassword(e.target.value) }
           />
 
-          <button type="submit">Acessar</button>
+          <button type="submit">
+            {loadingAuth ? "Carregando..." : "Acessar"}
+          </button>
         </form>
 
         <Link to="/register">Criar uma conta</Link>

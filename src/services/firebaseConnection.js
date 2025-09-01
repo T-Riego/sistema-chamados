@@ -4,13 +4,13 @@ import { getFirestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 
 const firebaseConfig = {
-  apiKey: "AIzaSyB6PFqVRlL39nxPn2Fh9WSDWQOA0Q0KIWs",
-  authDomain: "riegosdev-f9be7.firebaseapp.com",
-  projectId: "riegosdev-f9be7",
-  storageBucket: "riegosdev-f9be7.firebasestorage.app",
-  messagingSenderId: "662801310490",
-  appId: "1:662801310490:web:aac2196b863f71ca9ec2a3",
-  measurementId: "G-2J7JNW70HV"
+  apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
+  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.REACT_APP_FIREBASE_APP_ID,
+  measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID
 };
 
 const firebaseapp = initializeApp(firebaseConfig); 
@@ -20,3 +20,4 @@ const db = getFirestore(firebaseapp);
 const storage = getStorage(firebaseapp);
 
 export { auth, db, storage };
+

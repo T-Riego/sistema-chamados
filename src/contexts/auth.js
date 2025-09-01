@@ -1,6 +1,6 @@
-import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { doc, setDoc } from 'firebase/firestore';
-import { createContext, useState } from 'react';
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from 'firebase/auth';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { createContext, useEffect, useState } from 'react';
 import { auth, db } from '../services/firebaseConnection';
 
 import { useNavigate } from 'react-router-dom';
@@ -10,14 +10,59 @@ export const AuthContext = createContext({});
 
 function AuthProvider({ children }){
   const [user, setUser] = useState(null)
-  const [loadingAuth, setLoadingAuth] = useState(false); // para dar um loading no botão de cadastrar caso demore a responder a aplicação
+  const [loadingAuth, setLoadingAuth] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const navigate = useNavigate();
 
-  function signIn(email, password){
-    console.log(email)
-    console.log(password);
-    alert("LOGADO COM SUCESSO")
+
+  useEffect(() => {
+    async function loadUser(){
+      const storageUser = localStorage.getItem('@ticketsPRO')
+
+      if(storageUser){
+        setUser(JSON.parse(storageUser))
+        setLoading(false);
+      }
+
+
+      setLoading(false);
+
+    }
+
+    loadUser();
+  }, [])
+
+
+  async function signIn(email, password){
+    setLoadingAuth(true);
+
+    await signInWithEmailAndPassword(auth, email, password)
+    .then( async (value) => {
+      let uid = value.user.uid;
+
+      const docRef = doc(db, "users", uid);
+      const docSnap = await getDoc(docRef)
+
+      let data = {
+        uid: uid,
+        nome: docSnap.data().nome,
+        email: value.user.email,
+        avatarUrl: docSnap.data().avatarUrl
+      }
+
+      setUser(data);
+      storageUser(data);
+      setLoadingAuth(false);
+      toast.success("Bem-vindo(a) de volta!")
+      navigate("/dashboard")
+    })
+    .catch((error) => {
+      console.log(error);
+      setLoadingAuth(false);
+      toast.error("Ops algo deu errado!");
+    }) 
+
   }
 
 
@@ -26,10 +71,10 @@ function AuthProvider({ children }){
     setLoadingAuth(true);
 
     await createUserWithEmailAndPassword(auth, email, password)
-    .then( async (value) => { 
-        let uid = value.user.uid // verificando o uid
+    .then( async (value) => {
+        let uid = value.user.uid
 
-        await setDoc(doc(db, "users", uid), { 
+        await setDoc(doc(db, "users", uid), {
           nome: name,
           avatarUrl: null
         })
@@ -43,9 +88,10 @@ function AuthProvider({ children }){
           };
 
           setUser(data);
+          storageUser(data);
           setLoadingAuth(false);
-          toast.success("Seja bem vindo ao sistema!")
-          navigate("/dashboard");
+          toast.success("Seja bem-vindo ao sistema!")
+          navigate("/dashboard")
           
         })
 
@@ -60,7 +106,13 @@ function AuthProvider({ children }){
 
 
   function storageUser(data){
-    localStorage.setItem('@ticketsPRO', JSON.stringify(data));
+    localStorage.setItem('@ticketsPRO', JSON.stringify(data))
+  }
+
+  async function logout(){
+    await signOut(auth);
+    localStorage.removeItem('@ticketsPRO');
+    setUser(null);
   }
 
   return(
@@ -70,7 +122,11 @@ function AuthProvider({ children }){
         user,
         signIn,
         signUp,
-        loadingAuth
+        logout,
+        loadingAuth,
+        loading,
+        storageUser,
+        setUser
       }}
     >
       {children}
