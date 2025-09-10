@@ -22,7 +22,7 @@ export default function Profile(){
   const [imageAvatar, setImageAvatar] = useState(null);
 
   const [nome, setNome] = useState(user && user.nome)
-  const [email, setEmail] = useState(user && user.email)
+  const [email] = useState(user && user.email)
 
   function handleFile(e){
     if(e.target.files[0]){
