@@ -31,64 +31,63 @@ export default function New(){
   const [idCustomer, setIdCustomer] = useState(false)
   
 
-  useEffect(() => {
-    async function loadCustomers(){
-      const querySnapshot = await getDocs(listRef)
-      .then( (snapshot) => {
-        let lista = [];
+ useEffect(() => {
+    async function loadCustomers(){
+      await getDocs(listRef)
+      .then( (snapshot) => {
+        let lista = [];
 
-        snapshot.forEach((doc) => {
-          lista.push({
-            id: doc.id,
-            nomeFantasia: doc.data().nomeFantasia
-          })
-        })
+        snapshot.forEach((doc) => {
+          lista.push({
+            id: doc.id,
+            nomeFantasia: doc.data().nomeFantasia
+          })
+        })
 
-        if(snapshot.docs.size === 0){
-          console.log("NENHUMA EMPRESA ENCONTRADA");
-          setCustomers([ { id: '1', nomeFantasia: 'FREELA' } ])
-          setLoadCustomer(false);
-          return;
-        }
+        if(snapshot.docs.size === 0){
+          console.log("NENHUMA EMPRESA ENCONTRADA");
+          setCustomers([ { id: '1', nomeFantasia: 'FREELA' } ])
+          setLoadCustomer(false);
+          return;
+        }
 
-        setCustomers(lista);
-        setLoadCustomer(false);
+        setCustomers(lista);
+        setLoadCustomer(false);
 
-        if(id){
-          loadId(lista);
-        }
+        // Se houver um ID na URL, carrega o chamado para edição
+        if(id){
+          loadId(lista);
+        }
 
-      })
-      .catch((error) => {
-        console.log("ERRRO AO BUSCAR OS CLIENTES", error)
-        setLoadCustomer(false);
-        setCustomers([ { id: '1', nomeFantasia: 'FREELA' } ])
-      })
-    }
+      })
+      .catch((error) => {
+        console.log("ERRRO AO BUSCAR OS CLIENTES", error)
+        setLoadCustomer(false);
+        setCustomers([ { id: '1', nomeFantasia: 'FREELA' } ])
+      })
+    }
 
-    loadCustomers();    
-  }, [id])
+    // Função interna para carregar os dados do chamado a ser editado
+    async function loadId(lista){
+      const docRef = doc(db, "chamados", id);
+      await getDoc(docRef)
+      .then((snapshot) => {
+        setAssunto(snapshot.data().assunto)
+        setStatus(snapshot.data().status)
+        setComplemento(snapshot.data().complemento);
 
+        let index = lista.findIndex(item => item.id === snapshot.data().clienteId)
+        setCustomerSelected(index);
+        setIdCustomer(true);
+      })
+      .catch((error) => {
+        console.log(error);
+        setIdCustomer(false);
+      })
+    }
 
-  async function loadId(lista){
-    const docRef = doc(db, "chamados", id);
-    await getDoc(docRef)
-    .then((snapshot) => {
-      setAssunto(snapshot.data().assunto)
-      setStatus(snapshot.data().status)
-      setComplemento(snapshot.data().complemento);
-
-
-      let index = lista.findIndex(item => item.id === snapshot.data().clienteId)
-      setCustomerSelected(index);
-      setIdCustomer(true);
-
-    })
-    .catch((error) => {
-      console.log(error);
-      setIdCustomer(false);
-    })
-  }
+    loadCustomers();
+  }, [id])
 
 
   function handleOptionChange(e){
