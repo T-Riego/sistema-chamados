@@ -4,7 +4,7 @@ import { FiPlusCircle } from 'react-icons/fi'
 import Header from '../../components/Header'
 import Title from '../../components/Title'
 
-import { addDoc, collection, doc, getDoc, getDocs, updateDoc, where } from 'firebase/firestore'
+import { addDoc, collection, doc, getDoc, getDocs, query, updateDoc, where } from 'firebase/firestore'
 import { AuthContext } from '../../contexts/auth'
 import { db } from '../../services/firebaseConnection'
 
@@ -17,7 +17,7 @@ import './new.css'
 const listRef = collection(db, "customers");
 
 export default function New(){
-  const { user } = useContext(AuthContext);
+  const { user } = useContext(AuthContext); // user.uid é o que precisamos
   const { id } = useParams();
   const navigate = useNavigate();
 
@@ -31,9 +31,11 @@ export default function New(){
   const [idCustomer, setIdCustomer] = useState(false)
   
 
- useEffect(() => {
+  useEffect(() => {
     async function loadCustomers(){
+      // A nova query filtra a lista de clientes pelo ID do usuário logado
       const q = query(listRef, where("userId", "==", user.uid));
+      
       await getDocs(q)
       .then( (snapshot) => {
         let lista = [];
@@ -88,7 +90,7 @@ export default function New(){
     }
 
     loadCustomers();
-  }, [id])
+  }, [id, user.uid])
 
 
   function handleOptionChange(e){

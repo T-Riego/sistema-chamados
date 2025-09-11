@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
+import { AuthContext } from '../../contexts/auth'
 
 import { FiEdit2, FiMessageSquare, FiPlus, FiSearch } from 'react-icons/fi'
 import Header from '../../components/Header'
@@ -16,7 +17,8 @@ import './dashboard.css'
 const listRef = collection(db, "chamados")
 
 export default function Dashboard(){
-  
+  useContext(AuthContext);
+
   const [chamados, setChamados] = useState([])
   const [loading, setLoading] = useState(true);
 
