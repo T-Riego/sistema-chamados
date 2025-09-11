@@ -4,7 +4,7 @@ import { FiPlusCircle } from 'react-icons/fi'
 import Header from '../../components/Header'
 import Title from '../../components/Title'
 
-import { addDoc, collection, doc, getDoc, getDocs, updateDoc } from 'firebase/firestore'
+import { addDoc, collection, doc, getDoc, getDocs, updateDoc, where } from 'firebase/firestore'
 import { AuthContext } from '../../contexts/auth'
 import { db } from '../../services/firebaseConnection'
 
@@ -33,7 +33,8 @@ export default function New(){
 
  useEffect(() => {
     async function loadCustomers(){
-      await getDocs(listRef)
+      const q = query(listRef, where("userId", "==", user.uid));
+      await getDocs(q)
       .then( (snapshot) => {
         let lista = [];
 
